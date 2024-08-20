@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using webapi.Mappers;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
+using webapi.Interfaces;
 
 
 //Bu API, "stok" (Stock) verilerini almak için iki GET HTTP isteği sağlayan basit bir RESTful kontrolcüsüdür. 
@@ -19,15 +20,19 @@ namespace webapi.Controllers{
    
     public class StockController: ControllerBase{
 
-       public readonly ApplicationDBContext _context; //Kontrolcünün içinde veritabanıyla etkileşimde bulunmak için kullanılır.
-        public StockController(ApplicationDBContext context)
+       private readonly ApplicationDBContext _context; //Kontrolcünün içinde veritabanıyla etkileşimde bulunmak için kullanılır.
+       private readonly IStockRepository _stockRepo;
+        public StockController(ApplicationDBContext context, IStockRepository stockRepo)
        {
+        _stockRepo=stockRepo;
         _context=context;
         
        }
        [HttpGet]//İstemciden gelen POST isteği bu metoda yönlendirilir.
        public async Task<IActionResult> GetAll(){  //listeleme kodu
-        var stocks=await _context.Stock.ToListAsync();
+
+        var stocks=await _stockRepo.GetAllSync();
+
         var dto=stocks.Select(s =>s.toStockDto());//.Select(s => s.toStockDto()) ifadesi, her Stock model nesnesini StockDto nesnesine dönüştürür. Bu, Stock modelini API yanıtı için daha uygun bir formata getirir.
         return Ok(stocks);
        }
