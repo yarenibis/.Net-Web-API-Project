@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using webapi.DTO.Comment;
 
 namespace webapi.DTO.Stock
 {
@@ -17,6 +18,8 @@ namespace webapi.DTO.Stock
         public string Industry{get; set;}=string.Empty;
 
         public long marketCap{get; set;}
+
+        public List<CommentDto> comments{get; set;}
 
     }
     

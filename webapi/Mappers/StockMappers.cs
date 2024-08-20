@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using webapi.DTO.Stock;
 using webapi.Models;
+using System.Collections.Generic;
 namespace webapi.Mappers{
     public static class StockMappers{
         //bir Stock model nesnesini, StockDto nesnesine dönüştüren bir genişletme metodu
@@ -15,7 +15,8 @@ namespace webapi.Mappers{
               purchase=stockModel.purchase,
               lastDiv=stockModel.lastDiv,
               Industry=stockModel.Industry,
-              marketCap=stockModel.marketCap
+              marketCap=stockModel.marketCap,
+              comments=stockModel.comments.Select(c=>c.ToCommentDto()).ToList()
             
           };
           
