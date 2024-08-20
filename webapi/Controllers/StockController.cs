@@ -31,7 +31,7 @@ namespace webapi.Controllers{
        [HttpGet]//İstemciden gelen POST isteği bu metoda yönlendirilir.
        public async Task<IActionResult> GetAll(){  //listeleme kodu
 
-        var stocks=await _stockRepo.GetAllSync();
+        var stocks=await _stockRepo.GetAllAsync();
 
         var dto=stocks.Select(s =>s.toStockDto());//.Select(s => s.toStockDto()) ifadesi, her Stock model nesnesini StockDto nesnesine dönüştürür. Bu, Stock modelini API yanıtı için daha uygun bir formata getirir.
         return Ok(stocks);
@@ -50,7 +50,7 @@ namespace webapi.Controllers{
 
         [HttpGet("{id}")]
        public async Task<IActionResult> GetById([FromRoute] int id){
-           var stock=await _context.Stock.FindAsync(id);
+           var stock=await _stockRepo.GetByIdAsync(id);
            if(stock==null){
             return NotFound();
            }
@@ -61,24 +61,17 @@ namespace webapi.Controllers{
        [HttpPost]
        public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto){
            var stockModel=stockDto.ToStockFromCreateDTO();  
-           await _context.Stock.AddAsync(stockModel);  //_context.Stock, Stock modelinin veritabanındaki temsilcisidir (bir tabloya karşılık gelir)
-           await _context.SaveChangesAsync();
+           await _stockRepo.CreateAsync(stockModel);
            return CreatedAtAction(nameof(GetById), new { id = stockModel.Id}, stockModel.toStockDto());
        }
 
        [HttpPut]
        [Route("{id}")]
        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto){
-          var stockModel=await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
+          var stockModel=await _stockRepo.UpdateAsync(id,updateDto);
           if(stockModel==null){
             return NotFound();
           }
-          stockModel.symbol=updateDto.symbol;
-          stockModel.companyName=updateDto.companyName;
-          stockModel.lastDiv=updateDto.lastDiv;
-          stockModel.marketCap=updateDto.marketCap;
-          stockModel.purchase=updateDto.purchase;
-          stockModel.Industry=updateDto.Industry;
 
           await _context.SaveChangesAsync();
           return Ok(stockModel.toStockDto());
@@ -89,12 +82,11 @@ namespace webapi.Controllers{
        [HttpDelete]
        [Route("{id}")]
        public async Task<IActionResult> Delete([FromRoute] int id){
-           var stockModel=await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
+           var stockModel=await _stockRepo.DeleteAsync(id);
            if(stockModel==null){
             return NotFound();
           }
-          _context.Stock.Remove(stockModel); //!!!!!!!asenkron bi metot değil
-          await _context.SaveChangesAsync();
+          
           return NoContent();
        }
 
